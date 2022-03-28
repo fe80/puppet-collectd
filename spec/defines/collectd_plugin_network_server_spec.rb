@@ -41,6 +41,32 @@ describe 'collectd::plugin::network::server', type: :define do
           is_expected.to contain_file("#{options[:plugin_conf_dir]}/network-server-node1.conf").with(ensure: 'absent')
         end
       end
+
+      context 'with multiple servers' do
+        let(:title) { 'eatapples' }
+        let :params do
+          {
+            servers: ['1.1.1.1', '2.2.2.2']
+          }
+          it do
+            is_expected.to contain_file(
+              "#{options[:plugin_conf_dir]}/network-server-eatapples.conf"
+            ).with_content(
+              /<Server \"1.1.1.1\" \"1234\">\n    <Server \"2.2.2.2\" \"1234\">\n/
+            )
+          end
+
+          context 'with collectd 4.6' do
+            it do
+              is_expected.to contain_file(
+                "#{options[:plugin_conf_dir]}/network-server-eatapples.conf"
+              ).with_content(
+                /Server \"1.1.1.1\" \"1234\"\n    Server \"2.2.2.2\" \"1234\"\n/
+              )
+            end
+          end
+        end
+      end
     end
   end
 end
